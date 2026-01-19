@@ -20,39 +20,43 @@ function App() {
   };
 
   // 3. Handle form submission (optional)
-  const handleSubmit = (event) => {
-    event.preventDefault(); // Prevents the default page reload
-    alert(`A Input was submitted: ${input}`);
-  };
+// 1. Ajuste o handleSubmit para chamar o sendMessage
+const handleSubmit = async (event) => {
+  event.preventDefault(); // Impede o reload da página
+  if (!input.trim() || loading) return; // Não envia se estiver vazio ou carregando
 
-  const sendMessage = async () => {
-    if (!AiInput) return;
+  // Chamamos a função que fala com o Gemini
+  await sendMessage(input);
+};
 
-    setLoading(true);
-    try {
-      // 1. Inicia o chat passando o histórico atual
-      const chat = startGeminiChat(chatHistory);
+// 2. Refatore o sendMessage para aceitar o texto como parâmetro
+const sendMessage = async (textoParaEnviar) => {
+  setLoading(true);
+  try {
+    const chat = startGeminiChat(chatHistory);
+    
+    // Envia o texto que veio do input
+    const result = await chat.sendMessage(textoParaEnviar);
+    const responseText = result.response.text();
 
-      // 2. Envia a nova mensagem
-      const result = await chat.sendMessage(AiInput);
-      const responseText = result.response.text();
+    // Faz o tubarão "falar" a resposta
+    setSharkMessage(responseText);
 
-      setSharkMessage(responseText);
-
-      // 3. Atualiza o histórico com a sua pergunta E a resposta da IA
-      setChatHistory([
-        ...chatHistory,
-        { role: "user", parts: [{ text: AiInput }] },
-        { role: "model", parts: [{ text: responseText }] },
-      ]);
-      
-      setAiInput(""); // Limpa o campo de texto
-    } catch (error) {
-      console.error("Erro ao conversar:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Atualiza o histórico para manter o debate vivo
+    setChatHistory([
+      ...chatHistory,
+      { role: "user", parts: [{ text: textoParaEnviar }] },
+      { role: "model", parts: [{ text: responseText }] },
+    ]);
+    
+    setInput(""); // Limpa o campo de texto após enviar
+  } catch (error) {
+    console.error("Erro ao conversar:", error);
+    setSharkMessage("Tive uma cãibra na barbatana... tente de novo! 🦈");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>
