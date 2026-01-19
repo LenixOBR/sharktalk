@@ -1,9 +1,15 @@
 import sharkAvatar from './assets/placeholder.svg'
 import React, { useState } from 'react';
+import { startGeminiChat } from './services/geminiService';
 import './App.css'
 
 function App() {
   const [sharkMessage, setSharkMessage] = useState("Olá! Sou um tubarão! 🦈");
+
+  const [AiInput, setAiInput] = useState("");
+  // O histórico começa vazio
+  const [chatHistory, setChatHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // btw these are all from google, who cares? these are going up up and away
   const [input, setInput] = useState('');
@@ -19,21 +25,33 @@ function App() {
     alert(`A Input was submitted: ${input}`);
   };
 
-  const handleInput = (input) => {
+  const sendMessage = async () => {
+    if (!AiInput) return;
 
-    /*
-      Por enquanto, isso só vai responder com oque vc mandou
-      Mas! Isso não vai ficar assim
-      Em vez disso, ele será assim:
-      Quando alguém apertar o botão, ele irá chamar a função "handleInput"
-      essa handleInput, chamará um handleMicSpeak, que está em outro arquivo, e irá retornar oque a pessoa falou com speech to text
-      ela então passará para o handleResponse, que será um carinha 
-      esse agente então irá chamar o handleResponse, que irá pegar a fala
-      mandar para uma IA (sim, é.)
-      e ela retornará a resposta da IA
-      então mandaramos para o setSharkMessage
-    */
-    setSharkMessage(input);
+    setLoading(true);
+    try {
+      // 1. Inicia o chat passando o histórico atual
+      const chat = startGeminiChat(chatHistory);
+
+      // 2. Envia a nova mensagem
+      const result = await chat.sendMessage(AiInput);
+      const responseText = result.response.text();
+
+      setSharkMessage(responseText);
+
+      // 3. Atualiza o histórico com a sua pergunta E a resposta da IA
+      setChatHistory([
+        ...chatHistory,
+        { role: "user", parts: [{ text: AiInput }] },
+        { role: "model", parts: [{ text: responseText }] },
+      ]);
+      
+      setAiInput(""); // Limpa o campo de texto
+    } catch (error) {
+      console.error("Erro ao conversar:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
