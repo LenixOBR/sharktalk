@@ -6,22 +6,21 @@ function App() {
   const [sharkMessage, setSharkMessage] = useState("Olá! Sou um tubarão! 🦈");
 
   
-  const handleResponse = (response) => {
+  const handleInput = (input) => {
 
     /*
-      now we will just be mirroring whatever the response is, y'know?
-      BUT!
-      /we will be taking speech-to-text, AND! 
-      we are feeding to some AI
-      yeah, this may be considered an actual useful case (seriously stop putting AI everywhere, it's ugly)
-      if you ever try deploying this, maybe switch to an AI that doenst drain a river to work
-      Yeah, that'd be good, especially if you make money off this
-      think about that refreshing water, man
-      also, consider buying my team a cup of coffee, pretty please?
-      ya really should boycott big tech, especially if you have the money
-      okay, may God bless you, bye
+      Por enquanto, isso só vai responder com oque vc mandou
+      Mas! Isso não vai ficar assim
+      Em vez disso, ele será assim:
+      Quando alguém apertar o botão, ele irá chamar a função "handleInput"
+      essa handleInput, chamará um handleMicSpeak, que está em outro arquivo, e irá retornar oque a pessoa falou com speech to text
+      ela então passará para o handleResponse, que será um carinha 
+      esse agente então irá chamar o handleResponse, que irá pegar a fala
+      mandar para uma IA (sim, é.)
+      e ela retornará a resposta da IA
+      então mandaramos para o setSharkMessage
     */
-    setSharkMessage(response);
+    setSharkMessage(input);
   };
 
   return (
@@ -33,25 +32,11 @@ function App() {
             {sharkMessage}
           </div>
         )}
-        {/*
-          Yes, it's an single static svg, 
-          I'm no artist, and i dont want to bother comissioning one
-          Also, not taking the time to actually deploy proper avatar things
-          And, i mean, that's more than enough for an high school competition
-          but come on, if you want to deploy this for real for real
-          get an proper avatar, with proper facial expressions! 2D tho
-          most students will probably run this on an phone, so you should make it 2D
-          if it's 2D, it will be way more acessible, since rendering 3D will add considerable lag
-          otherwise, youll just make inequality larger, even, y'know?
-          also, why im writing this in english? it's for Brazilians! By Brazilians!
-          whatever, it's just the standard language for this
-          may God bless you
-        */}
         <img src={sharkAvatar} alt="Placeholder shark" className='sharkAvatar'/>
       </div>
       
       <div className="response-buttons">
-        <button onClick={() => handleResponse("oi")}>🎙️</button>
+        <button onClick={() => handleInput("oi")}>🎙️</button>
       </div>
 
       <div style={{
