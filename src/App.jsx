@@ -6,7 +6,6 @@ import './App.css'
 function App() {
   const [sharkMessage, setSharkMessage] = useState("Olá! Sou um tubarão! 🦈");
 
-  const [AiInput, setAiInput] = useState("");
   // O histórico começa vazio
   const [chatHistory, setChatHistory] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -79,7 +78,7 @@ const sendMessage = async (textoParaEnviar) => {
     </form>
       {/*
       <div className="response-buttons">
-        <button onClick={() => handleInput("oi")}>🎙️</button>
+        <button onClick={() => handleMic()}>🎙️</button>
       </div>
       Sim, isso tá desativado por enquanto ;'
       */}
