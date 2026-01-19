@@ -6,55 +6,44 @@ import './App.css'
 function App() {
   const [sharkMessage, setSharkMessage] = useState("Olá! Sou um tubarão! 🦈");
 
-  // O histórico começa vazio
   const [chatHistory, setChatHistory] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // btw these are all from google, who cares? these are going up up and away
   const [input, setInput] = useState('');
 
-  // 2. Handle the change event
   const handleChange = (event) => {
     setInput(event.target.value);
   };
 
-  // 3. Handle form submission (optional)
-// 1. Ajuste o handleSubmit para chamar o sendMessage
-const handleSubmit = async (event) => {
-  event.preventDefault(); // Impede o reload da página
-  if (!input.trim() || loading) return; // Não envia se estiver vazio ou carregando
+  const handleSubmit = async (event) => {
+    event.preventDefault(); 
+    if (!input.trim() || loading) return; 
 
-  // Chamamos a função que fala com o Gemini
-  await sendMessage(input);
-};
+    await sendMessage(input);
+  };
 
-// 2. Refatore o sendMessage para aceitar o texto como parâmetro
-const sendMessage = async (textoParaEnviar) => {
-  setLoading(true);
-  try {
-    const chat = startGeminiChat(chatHistory);
-    
-    // Envia o texto que veio do input
-    const result = await chat.sendMessage(textoParaEnviar);
-    const responseText = result.response.text();
+  const sendMessage = async (textoParaEnviar) => {
+    setLoading(true);
+    try {
+      const chat = startGeminiChat(chatHistory);
+      
+      const result = await chat.sendMessage(textoParaEnviar);
+      const responseText = result.response.text();
 
-    // Faz o tubarão "falar" a resposta
-    setSharkMessage(responseText);
+      setSharkMessage(responseText);
 
-    // Atualiza o histórico para manter o debate vivo
-    setChatHistory([
-      ...chatHistory,
-      { role: "user", parts: [{ text: textoParaEnviar }] },
-      { role: "model", parts: [{ text: responseText }] },
-    ]);
-    
-    setInput(""); // Limpa o campo de texto após enviar
-  } catch (error) {
-    console.error("Erro ao conversar:", error);
-    setSharkMessage("Tive uma cãibra na barbatana... tente de novo! 🦈");
-  } finally {
-    setLoading(false);
-  }
+      setChatHistory([
+        ...chatHistory,
+        { role: "user", parts: [{ text: textoParaEnviar }] },
+        { role: "model", parts: [{ text: responseText }] },
+      ]);
+      
+      setInput(""); 
+    } catch (error) {
+      console.error("Erro ao conversar:", error);
+      setSharkMessage("Tive uma cãibra na barbatana... tente de novo! 🦈");
+    } finally {
+      setLoading(false);
+    }
 };
 
   return (
@@ -71,8 +60,8 @@ const sendMessage = async (textoParaEnviar) => {
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          value={input} // The value is controlled by the 'name' state
-          onChange={handleChange} // Updates the state on every keystroke
+          value={input} 
+          onChange={handleChange} 
         />
       <button type="submit">Submit</button>
     </form>
