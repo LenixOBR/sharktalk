@@ -1,27 +1,50 @@
 import sharkAvatar from './assets/placeholder.svg'
 import React, { useState } from 'react';
+import { startGeminiChat } from './services/geminiService';
 import './App.css'
 
 function App() {
   const [sharkMessage, setSharkMessage] = useState("Olá! Sou um tubarão! 🦈");
 
-  
-  const handleInput = (input) => {
+  const [chatHistory, setChatHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState('');
 
-    /*
-      Por enquanto, isso só vai responder com oque vc mandou
-      Mas! Isso não vai ficar assim
-      Em vez disso, ele será assim:
-      Quando alguém apertar o botão, ele irá chamar a função "handleInput"
-      essa handleInput, chamará um handleMicSpeak, que está em outro arquivo, e irá retornar oque a pessoa falou com speech to text
-      ela então passará para o handleResponse, que será um carinha 
-      esse agente então irá chamar o handleResponse, que irá pegar a fala
-      mandar para uma IA (sim, é.)
-      e ela retornará a resposta da IA
-      então mandaramos para o setSharkMessage
-    */
-    setSharkMessage(input);
+  const handleChange = (event) => {
+    setInput(event.target.value);
   };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault(); 
+    if (!input.trim() || loading) return; 
+
+    await sendMessage(input);
+  };
+
+  const sendMessage = async (textoParaEnviar) => {
+    setLoading(true);
+    try {
+      const chat = startGeminiChat(chatHistory);
+      
+      const result = await chat.sendMessage(textoParaEnviar);
+      const responseText = result.response.text();
+
+      setSharkMessage(responseText);
+
+      setChatHistory([
+        ...chatHistory,
+        { role: "user", parts: [{ text: textoParaEnviar }] },
+        { role: "model", parts: [{ text: responseText }] },
+      ]);
+      
+      setInput(""); 
+    } catch (error) {
+      console.error("Erro ao conversar:", error);
+      setSharkMessage("Tive uma cãibra na barbatana... tente de novo! 🦈");
+    } finally {
+      setLoading(false);
+    }
+};
 
   return (
     <>
@@ -34,11 +57,20 @@ function App() {
         )}
         <img src={sharkAvatar} alt="Placeholder shark" className='sharkAvatar'/>
       </div>
-      
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={input} 
+          onChange={handleChange} 
+        />
+      <button type="submit">Submit</button>
+    </form>
+      {/*
       <div className="response-buttons">
-        <button onClick={() => handleInput("oi")}>🎙️</button>
+        <button onClick={() => handleMic()}>🎙️</button>
       </div>
-
+      Sim, isso tá desativado por enquanto ;'
+      */}
       <div style={{
         position: 'absolute',
         bottom: '10px',
