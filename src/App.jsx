@@ -5,7 +5,20 @@ import './App.css'
 function App() {
   const [sharkMessage, setSharkMessage] = useState("Olá! Sou um tubarão! 🦈");
 
-  
+  // btw these are all from google, who cares? these are going up up and away
+  const [input, setInput] = useState('');
+
+  // 2. Handle the change event
+  const handleChange = (event) => {
+    setInput(event.target.value);
+  };
+
+  // 3. Handle form submission (optional)
+  const handleSubmit = (event) => {
+    event.preventDefault(); // Prevents the default page reload
+    alert(`A Input was submitted: ${input}`);
+  };
+
   const handleInput = (input) => {
 
     /*
@@ -34,11 +47,20 @@ function App() {
         )}
         <img src={sharkAvatar} alt="Placeholder shark" className='sharkAvatar'/>
       </div>
-      
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={input} // The value is controlled by the 'name' state
+          onChange={handleChange} // Updates the state on every keystroke
+        />
+      <button type="submit">Submit</button>
+    </form>
+      {/*
       <div className="response-buttons">
         <button onClick={() => handleInput("oi")}>🎙️</button>
       </div>
-
+      Sim, isso tá desativado por enquanto ;'
+      */}
       <div style={{
         position: 'absolute',
         bottom: '10px',
