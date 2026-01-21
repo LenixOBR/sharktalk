@@ -12,5 +12,5 @@ Este projeto não tem objetivo nenhum de lucrar, em vez disso, é uma proposta d
 [] Implementar avatar do tubarão
 [] Implementar TTS para o tubarão
 [] Implementar Speech to Text para o usuário
-[] Implementar mecânica de turnos para debate
+[X] Implementar mecânica de turnos para debate
 [] Implementar feedback 
