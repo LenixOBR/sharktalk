@@ -6,7 +6,7 @@
 }
 
 .sharkAvatar {
-  height:20em;
+  height: 20em;
 }
 
 .shark {
@@ -17,16 +17,22 @@
 
 .speech-bubble {
   position: absolute;
-  background:black;
+  background: black;
+  color: white;
   border: 2px solid #333;
   border-radius: 15px;
   padding: 10px 15px;
   top: -70px;
   left: 50%;
   transform: translateX(-50%);
-  white-space: nowrap;
-  min-width: 150px;
+  max-width: 300px; /* Limita a largura máxima */
+  min-width: 100px; /* Reduz o mínimo */
+  width: max-content; /* Ajusta ao conteúdo */
   text-align: center;
+  white-space: normal; /* Permite quebra de linha */
+  word-wrap: break-word; /* Quebra palavras longas */
+  font-size: 14px; /* Tamanho de fonte menor */
+  line-height: 1.4; /* Espaçamento entre linhas */
 }
 
 .speech-bubble::after {
@@ -39,7 +45,7 @@
   height: 0;
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
-  border-top: 10px solid white;
+  border-top: 10px solid black; /* Cor corrigida para combinar com o fundo */
 }
 
 .speech-bubble::before {
@@ -67,10 +73,11 @@
   border: 2px solid #333;
   border-radius: 8px;
   background: black;
+  color: white;
   cursor: pointer;
   font-size: 14px;
 }
 
 .response-buttons button:hover {
-  background: #f0f0f0;
+  background: #333;
 }
