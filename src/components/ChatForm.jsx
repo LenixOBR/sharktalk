@@ -1,20 +1,13 @@
 import React, { useState } from 'react';
 
-const ChatForm = ({ onSubmit, loading }) => {
+function ChatForm({ onSubmit, loading, disabled }) {
   const [input, setInput] = useState('');
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (!input.trim() || loading) return;
-    
-    const success = await onSubmit(input);
-    if (success) {
-      setInput("");
-    }
-  };
-
-  const handleChange = (event) => {
-    setInput(event.target.value);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!input.trim() || disabled) return;
+    onSubmit(input);
+    setInput('');
   };
 
   return (
@@ -22,15 +15,15 @@ const ChatForm = ({ onSubmit, loading }) => {
       <input
         type="text"
         value={input}
-        onChange={handleChange}
-        placeholder="Digite sua mensagem..."
-        disabled={loading}
+        onChange={(e) => setInput(e.target.value)}
+        disabled={loading || disabled}
+        placeholder={disabled ? "Debate encerrado" : "Digite sua mensagem..."}
       />
-      <button type="submit" disabled={loading}>
-        {loading ? 'Enviando...' : 'Submit'}
+      <button type="submit" disabled={loading || disabled}>
+        {loading ? 'Enviando...' : 'Enviar'}
       </button>
     </form>
   );
-};
+}
 
 export default ChatForm;

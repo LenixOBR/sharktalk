@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSharkChat } from './hooks/useSharkChat';
 import SharkAvatar from './components/SharkAvatar';
 import ChatForm from './components/ChatForm';
@@ -7,12 +7,16 @@ import SetupScreen from './components/SetupScreen';
 import './App.css';
 
 function App() {  
-  const { sharkMessage, loading, sendMessage } = useSharkChat();
+  const { sharkMessage, loading, sendMessage, remainingRounds, initializeChat } = useSharkChat();
   const [setupData, setSetupData] = useState(null);
-  
+
   const handleSetupComplete = (data) => {
     setSetupData(data);
-    // Aqui você pode usar: data.userName, data.debateTopic, data.rounds
+    initializeChat(data);
+  };
+
+  const sendMessageWrapper = async (texto) => {
+    await sendMessage(texto, setupData);
   };
 
   // Se ainda não completou o setup, mostra a tela de configuração
@@ -25,10 +29,14 @@ function App() {
     <div>
       <h1>Shark Talk - {setupData.debateTopic}</h1>
       <p className="user-info">
-        Debatedor: {setupData.userName} | Turnos restantes: {setupData.rounds}
+        Debatedor: {setupData.userName} | Turnos restantes: {remainingRounds ?? setupData.rounds}
       </p>
       <SharkAvatar message={sharkMessage} />
-      <ChatForm onSubmit={sendMessagePrepper} loading={loading} />
+      <ChatForm 
+        onSubmit={sendMessageWrapper} 
+        loading={loading} 
+        disabled={remainingRounds === 0}
+      />
       <CopyrightFooter />
     </div>
   );
