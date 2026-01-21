@@ -1,2 +1,2 @@
 # Rename this after filling the blankjs
-VITE_GEMINI_API=yourapi
+VITE_OPENROUTER_API_KEY=yourapi
