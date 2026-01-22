@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { sendChatMessage } from '../services/openRouterService';
+import { startGeminiChat } from '../services/geminiService';
 
 export const useSharkChat = () => {
   const [sharkMessage, setSharkMessage] = useState("Olá! Sou um tubarão! 🦈");
@@ -11,7 +11,7 @@ export const useSharkChat = () => {
   const initializeChat = (setupData) => {
     setRemainingRounds(setupData.rounds);
     setDebateEnded(false);
-    setChatHistory([]); // Limpa o histórico
+    // Mensagem inicial personalizada
     setSharkMessage(
       `Olá, ${setupData.userName}! Sou Tuba, seu oponente neste debate sobre "${setupData.debateTopic}". ` +
       `Temos ${setupData.rounds} turnos pela frente. Apresente seu primeiro argumento! 🦈`
@@ -21,8 +21,9 @@ export const useSharkChat = () => {
   const generateFeedback = async (setupData) => {
     setLoading(true);
     try {
+      // Monta um resumo do debate
       const debateTranscript = chatHistory
-        .map((msg) => {
+        .map((msg, index) => {
           const speaker = msg.role === 'user' ? setupData.userName : 'Tuba';
           return `**${speaker}:** ${msg.parts[0].text}`;
         })
@@ -49,7 +50,9 @@ Por favor, forneça um feedback construtivo e detalhado sobre o desempenho de ${
 Seja honesto, construtivo e encorajador. Use um tom amigável e mantenha sua personalidade de tubarão! 🦈
       `.trim();
 
-      const feedbackText = await sendChatMessage(feedbackPrompt, []);
+      const chat = startGeminiChat([]);
+      const result = await chat.sendMessage(feedbackPrompt);
+      const feedbackText = result.response.text();
 
       setSharkMessage(
         `🦈 **DEBATE ENCERRADO!**\n\n` +
@@ -72,6 +75,7 @@ Seja honesto, construtivo e encorajador. Use um tom amigável e mantenha sua per
   };
 
   const sendMessage = async (textoParaEnviar, setupData) => {
+    // Verifica se ainda há turnos
     if (remainingRounds <= 0) {
       setSharkMessage("O debate já acabou! Veja o feedback acima. 🦈");
       return false;
@@ -79,6 +83,7 @@ Seja honesto, construtivo e encorajador. Use um tom amigável e mantenha sua per
 
     setLoading(true);
     try {
+      // Adiciona contexto ao prompt
       const contextualizedMessage = `
 [Contexto do debate]
 - Tema: ${setupData.debateTopic}
@@ -92,8 +97,11 @@ ${textoParaEnviar}
 ${remainingRounds === 1 ? '[ATENÇÃO: Este é o último turno! Faça suas considerações finais de forma concisa.]' : ''}
       `.trim();
 
-      const responseText = await sendChatMessage(contextualizedMessage, chatHistory);
+      const chat = startGeminiChat(chatHistory);
+      const result = await chat.sendMessage(contextualizedMessage);
+      const responseText = result.response.text();
 
+      // Decrementa os turnos
       const newRemainingRounds = remainingRounds - 1;
       setRemainingRounds(newRemainingRounds);
 
@@ -107,7 +115,9 @@ ${remainingRounds === 1 ? '[ATENÇÃO: Este é o último turno! Faça suas consi
 
       setChatHistory(newHistory);
 
+      // Se acabaram os turnos, gera o feedback
       if (newRemainingRounds === 0) {
+        // Pequeno delay para mostrar a última resposta antes do feedback
         setTimeout(() => {
           generateFeedback(setupData);
         }, 1500);
