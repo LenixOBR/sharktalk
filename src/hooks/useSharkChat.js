@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { startGeminiChat } from '../services/geminiService';
+import { sendMessageToOllama, generateFeedbackWithOllama } from '../services/ollamaService';
 
 export const useSharkChat = () => {
   const [sharkMessage, setSharkMessage] = useState("Olá! Sou um tubarão! 🦈");
@@ -11,6 +11,7 @@ export const useSharkChat = () => {
   const initializeChat = (setupData) => {
     setRemainingRounds(setupData.rounds);
     setDebateEnded(false);
+    setChatHistory([]); // Limpa o histórico
     // Mensagem inicial personalizada
     setSharkMessage(
       `Olá, ${setupData.userName}! Sou Tuba, seu oponente neste debate sobre "${setupData.debateTopic}". ` +
@@ -21,38 +22,11 @@ export const useSharkChat = () => {
   const generateFeedback = async (setupData) => {
     setLoading(true);
     try {
-      // Monta um resumo do debate
-      const debateTranscript = chatHistory
-        .map((msg, index) => {
-          const speaker = msg.role === 'user' ? setupData.userName : 'Tuba';
-          return `**${speaker}:** ${msg.parts[0].text}`;
-        })
-        .join('\n\n');
-
-      const feedbackPrompt = `
-[SOLICITAÇÃO DE FEEDBACK FINAL]
-
-Você acabou de concluir um debate sobre "${setupData.debateTopic}" com ${setupData.userName}.
-
-Aqui está o histórico completo do debate:
-
-${debateTranscript}
-
----
-
-Por favor, forneça um feedback construtivo e detalhado sobre o desempenho de ${setupData.userName} neste debate. Inclua:
-
-1. **Pontos Fortes:** O que ${setupData.userName} fez bem durante o debate?
-2. **Áreas de Melhoria:** Onde ${setupData.userName} poderia melhorar sua argumentação?
-3. **Qualidade dos Argumentos:** Avalie a consistência e fundamentação dos argumentos apresentados.
-4. **Conclusão:** Uma reflexão geral sobre o debate e sugestões para futuros debates.
-
-Seja honesto, construtivo e encorajador. Use um tom amigável e mantenha sua personalidade de tubarão! 🦈
-      `.trim();
-
-      const chat = startGeminiChat([]);
-      const result = await chat.sendMessage(feedbackPrompt);
-      const feedbackText = result.response.text();
+      const feedbackText = await generateFeedbackWithOllama(
+        setupData.debateTopic,
+        setupData.userName,
+        chatHistory
+      );
 
       setSharkMessage(
         `🦈 **DEBATE ENCERRADO!**\n\n` +
@@ -97,9 +71,7 @@ ${textoParaEnviar}
 ${remainingRounds === 1 ? '[ATENÇÃO: Este é o último turno! Faça suas considerações finais de forma concisa.]' : ''}
       `.trim();
 
-      const chat = startGeminiChat(chatHistory);
-      const result = await chat.sendMessage(contextualizedMessage);
-      const responseText = result.response.text();
+      const responseText = await sendMessageToOllama(contextualizedMessage, chatHistory);
 
       // Decrementa os turnos
       const newRemainingRounds = remainingRounds - 1;
@@ -126,7 +98,7 @@ ${remainingRounds === 1 ? '[ATENÇÃO: Este é o último turno! Faça suas consi
       return true;
     } catch (error) {
       console.error("Erro ao conversar:", error);
-      setSharkMessage("Tive uma cãibra na barbatana... tente de novo! 🦈");
+      setSharkMessage("Tive uma cãibra na barbatana... não consegui me conectar ao Ollama! Verifique se está rodando. 🦈");
       return false;
     } finally {
       setLoading(false);
