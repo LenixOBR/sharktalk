@@ -1,93 +1,27 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useSharkChat } from './hooks/useSharkChat';
-import { useVoiceChat } from './hooks/useVoiceChat';
+// src/App.jsx
+import React, { useState } from 'react';
 import SharkAvatar from './components/SharkAvatar';
-import VoiceControl from './components/VoiceControl';
 import MicrophonePermission from './components/MicrophonePermission';
-import CopyrightFooter from './components/Footer';
 import SetupScreen from './components/SetupScreen';
+import { useGeminiLive } from './hooks/useGeminiLive';
 import './App.css';
 
 function App() {  
-  const { sharkMessage, loading, sendMessage, remainingRounds, initializeChat, debateEnded } = useSharkChat();
-  const { 
-    isListening, 
-    isSpeaking, 
-    transcript, 
-    error: voiceError,
-    startListening, 
-    stopListening, 
-    speak,
-    stopSpeaking 
-  } = useVoiceChat();
+  // Substituímos os hooks antigos pelo hook Live
+  const { connect, disconnect, isConnected, isSpeaking } = useGeminiLive();
   
   const [setupData, setSetupData] = useState(null);
-  const [autoSpeak, setAutoSpeak] = useState(true);
   const [micPermissionGranted, setMicPermissionGranted] = useState(false);
-  
-  // Refs para controlar o que já foi falado
-  const lastSpokenMessageRef = useRef('');
-  const isProcessingRef = useRef(false);
 
   const handleSetupComplete = (data) => {
     setSetupData(data);
-    initializeChat(data);
-    lastSpokenMessageRef.current = ''; // Reset ao iniciar novo debate
+    // O hook useGeminiLive precisa receber os dados para configurar o Tuba
+    connect(data.debateTopic, data.userName);
   };
-
-  const sendMessageWrapper = async (texto) => {
-    // Marca que está processando
-    isProcessingRef.current = true;
-    
-    // Para qualquer fala anterior
-    stopSpeaking();
-    
-    const success = await sendMessage(texto, setupData);
-    
-    // Marca que terminou de processar
-    isProcessingRef.current = false;
+  const handleEndDebate = () => {
+    disconnect();
+    setSetupData(null);
   };
-
-  // Quando o transcript mudar e não estiver mais ouvindo, envia
-  useEffect(() => {
-    if (transcript && !isListening && transcript.trim() && !isProcessingRef.current) {
-      sendMessageWrapper(transcript);
-    }
-  }, [transcript, isListening]);
-
-  // Fala a resposta da IA apenas quando ela for nova e não estiver processando
-  useEffect(() => {
-    // Só fala se:
-    // 1. Auto-speak está ativo
-    // 2. Tem mensagem
-    // 3. Não está carregando
-    // 4. Setup está completo
-    // 5. A mensagem é diferente da última falada
-    // 6. Não está processando uma nova mensagem
-    if (
-      autoSpeak && 
-      sharkMessage && 
-      !loading && 
-      setupData && 
-      sharkMessage !== lastSpokenMessageRef.current &&
-      !isProcessingRef.current
-    ) {
-      // Aguarda um pouco para garantir que a mensagem está completa
-      const speakTimeout = setTimeout(() => {
-        speak(sharkMessage);
-        lastSpokenMessageRef.current = sharkMessage;
-      }, 300);
-
-      return () => clearTimeout(speakTimeout);
-    }
-  }, [sharkMessage, loading, autoSpeak, setupData]);
-
-  // Limpa a referência quando auto-speak é desativado
-  useEffect(() => {
-    if (!autoSpeak) {
-      stopSpeaking();
-    }
-  }, [autoSpeak]);
 
   if (!setupData) {
     return <SetupScreen onComplete={handleSetupComplete} />;
@@ -95,63 +29,48 @@ function App() {
 
   return (
     <div className="app-container">
-      <div className="status-bar">
-        <h1>🦈 Shark Talk - {setupData.debateTopic}</h1>
-        <p className="user-info">
-          Debatedor: {setupData.userName} | Turnos restantes: {remainingRounds ?? setupData.rounds}
-        </p>
-      </div>
-
-      <SharkAvatar message={sharkMessage} />
-
-      {/* Verificação de permissão de microfone */}
       {!micPermissionGranted && (
         <MicrophonePermission onPermissionGranted={() => setMicPermissionGranted(true)} />
       )}
 
-      {/* Controles de voz - só mostra se tem permissão */}
-      {micPermissionGranted && (
-        <VoiceControl
-          isListening={isListening}
-          isSpeaking={isSpeaking}
-          onStartListening={startListening}
-          onStopListening={stopListening}
-          onStopSpeaking={stopSpeaking}
-          disabled={loading || debateEnded}
-        />
-      )}
+      <header className="app-header">
+        <h1>Shark Tank Debate (Live API 🔴)</h1>
+        <p className="topic-display">
+          Tema: <strong>{setupData.debateTopic}</strong>
+        </p>
+      </header>
 
-      {/* Indicador de carregamento */}
-      {loading && (
-        <div className="loading-indicator">
-          <div className="spinner"></div>
-          <p>Tuba está pensando...</p>
+      <main className="main-content">
+        <div className="avatar-section">
+          <SharkAvatar isSpeaking={isSpeaking} />
+          
+          <div className="live-status">
+            {isConnected ? (
+              <span className="status-badge connected">● Conectado ao Tuba</span>
+            ) : (
+              <span className="status-badge connecting">● Conectando...</span>
+            )}
+            
+            {isSpeaking && <p className="subtitle">Tuba está falando...</p>}
+            {!isSpeaking && isConnected && <p className="subtitle">Tuba está ouvindo...</p>}
+          </div>
         </div>
-      )}
 
-      {transcript && (
-        <div className="transcript-preview">
-          <p><strong>Você disse:</strong> {transcript}</p>
+        <div className="controls-section">
+          <button className="end-button" onClick={handleEndDebate}>
+            Encerrar Debate
+          </button>
         </div>
-      )}
+      </main>
 
-      {voiceError && (
-        <div className="voice-error">
-          ⚠️ {voiceError}
-          {voiceError.includes('conexão') && (
-            <div style={{ marginTop: '10px', fontSize: '14px' }}>
-              <strong>Dicas:</strong>
-              <ul style={{ textAlign: 'left', display: 'inline-block' }}>
-                <li>Verifique sua conexão com a internet</li>
-                <li>Tente usar o Chrome ou Edge (melhor suporte)</li>
-                <li>Recarregue a página</li>
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
-
-      <CopyrightFooter />
+      {/* CSS Inline rápido para o status */}
+      <style>{`
+        .live-status { margin-top: 20px; text-align: center; }
+        .status-badge { padding: 5px 10px; border-radius: 15px; font-weight: bold; }
+        .connected { background: #d4edda; color: #155724; }
+        .connecting { background: #fff3cd; color: #856404; }
+        .end-button { background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;}
+      `}</style>
     </div>
   );
 }

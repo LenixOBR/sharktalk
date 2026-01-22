@@ -8,15 +8,15 @@ function SetupScreen({ onComplete }) {
   const [rounds, setRounds] = useState(3);
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (!userName.trim() || !debateTopic.trim()) {
-      alert('Por favor, preencha todos os campos!');
-      return;
-    }
-    
-    // Passa os dados para o componente pai
-    onComplete({ userName, debateTopic, rounds });
+      e.preventDefault(); // IMPORTANTE: Impede o refresh da página
+      
+      if (!userName.trim() || !debateTopic.trim()) {
+        alert('Por favor, preencha todos os campos!');
+        return;
+      }
+      
+      // Envia os dados para o App.jsx 
+      onComplete({ userName, debateTopic, rounds }); // Aqui ele chama a função
   };
 
   return (
