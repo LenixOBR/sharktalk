@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useSharkChat } from './hooks/useSharkChat';
 import { useVoiceChat } from './hooks/useVoiceChat';
 import SharkAvatar from './components/SharkAvatar';
-import ChatForm from './components/ChatForm';
 import VoiceControl from './components/VoiceControl';
 import CopyrightFooter from './components/Footer';
 import SetupScreen from './components/SetupScreen';
@@ -105,13 +104,6 @@ function App() {
           ⚠️ {voiceError}
         </div>
       )}
-
-      {/* Formulário de texto (ainda disponível) */}
-      <ChatForm 
-        onSubmit={sendMessageWrapper} 
-        loading={loading} 
-        disabled={debateEnded}
-      />
 
       <CopyrightFooter />
     </div>

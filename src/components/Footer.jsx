@@ -4,7 +4,7 @@ function CopyrightFooter() {
     return (
     <div style={{
         position: 'absolute',
-        bottom: '10px',
+        bottom: '0',
         left: '50%',
         transform: 'translateX(-50%)',
         fontSize: '12px',
