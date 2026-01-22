@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { sendMessageToOllama, generateFeedbackWithOllama } from '../services/ollamaService';
+import { sendMessageToGemini, generateFeedbackWithGemini } from '../services/geminiService';
 
 export const useSharkChat = () => {
   const [sharkMessage, setSharkMessage] = useState("Olá! Sou um tubarão! 🦈");
@@ -22,11 +22,7 @@ export const useSharkChat = () => {
   const generateFeedback = async (setupData) => {
     setLoading(true);
     try {
-      const feedbackText = await generateFeedbackWithOllama(
-        setupData.debateTopic,
-        setupData.userName,
-        chatHistory
-      );
+      const feedbackText = await generateFeedbackWithGemini(setupData.debateTopic, setupData.userName, chatHistory);
 
       setSharkMessage(
         `🦈 **DEBATE ENCERRADO!**\n\n` +
@@ -71,8 +67,7 @@ ${textoParaEnviar}
 ${remainingRounds === 1 ? '[ATENÇÃO: Este é o último turno! Faça suas considerações finais de forma concisa.]' : ''}
       `.trim();
 
-      const responseText = await sendMessageToOllama(contextualizedMessage, chatHistory);
-
+      const responseText = await sendMessageToGemini(contextualizedMessage, chatHistory);
       // Decrementa os turnos
       const newRemainingRounds = remainingRounds - 1;
       setRemainingRounds(newRemainingRounds);
