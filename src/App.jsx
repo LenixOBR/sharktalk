@@ -61,52 +61,55 @@ function App() {
 
   // Tela principal do chat
   return (
-    <div className="app-container">
-      <h1>🦈 Shark Talk - {setupData.debateTopic}</h1>
-      <p className="user-info">
-        Debatedor: {setupData.userName} | Turnos restantes: {remainingRounds ?? setupData.rounds}
-      </p>
-
-      {/* Toggle de auto-falar */}
-      <div className="controls">
-        <label className="toggle-label">
-          <input
-            type="checkbox"
-            checked={autoSpeak}
-            onChange={(e) => setAutoSpeak(e.target.checked)}
-          />
-          Auto-falar respostas da IA
-        </label>
+    <>
+      <div className="status-bar">
+        <h1>🦈 Shark Talk - {setupData.debateTopic}</h1>
+        <p className="user-info">
+          Debatedor: {setupData.userName} | Turnos restantes: {remainingRounds ?? setupData.rounds}
+        </p>
       </div>
-
-      <SharkAvatar message={sharkMessage} />
-
-      {/* Controles de voz */}
-      <VoiceControl
-        isListening={isListening}
-        isSpeaking={isSpeaking}
-        onStartListening={startListening}
-        onStopListening={stopListening}
-        onStopSpeaking={stopSpeaking}
-        disabled={loading || debateEnded}
-      />
-
-      {/* Mostra o que está sendo transcrito */}
-      {transcript && (
-        <div className="transcript-preview">
-          <p><strong>Você disse:</strong> {transcript}</p>
+      <div className="app-container">
+        {/* Toggle de auto-falar */}
+        <div className="controls">
+          <label className="toggle-label">
+            <input
+              type="checkbox"
+              checked={autoSpeak}
+              onChange={(e) => setAutoSpeak(e.target.checked)}
+            />
+            Auto-falar respostas da IA
+          </label>
         </div>
-      )}
 
-      {/* Erro de voz */}
-      {voiceError && (
-        <div className="voice-error">
-          ⚠️ {voiceError}
-        </div>
-      )}
+        <SharkAvatar message={sharkMessage} />
 
-      <CopyrightFooter />
-    </div>
+        {/* Controles de voz */}
+        <VoiceControl
+          isListening={isListening}
+          isSpeaking={isSpeaking}
+          onStartListening={startListening}
+          onStopListening={stopListening}
+          onStopSpeaking={stopSpeaking}
+          disabled={loading || debateEnded}
+        />
+
+        {/* Mostra o que está sendo transcrito */}
+        {transcript && (
+          <div className="transcript-preview">
+            <p><strong>Você disse:</strong> {transcript}</p>
+          </div>
+        )}
+
+        {/* Erro de voz */}
+        {voiceError && (
+          <div className="voice-error">
+            ⚠️ {voiceError}
+          </div>
+        )}
+
+        <CopyrightFooter />
+      </div>
+    </>
   );
 }
 

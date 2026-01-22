@@ -4,6 +4,8 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .sharkAvatar {
@@ -25,6 +27,7 @@
   padding: 16px 20px;
   border-bottom: 2px solid #0066cc;
   position: fixed;
+  text-align:center;
   top: 0;
   left: 0;
   right: 0;
@@ -34,7 +37,7 @@
 
 .status-bar h1 {
   margin: 0 0 8px 0;
-  font-size: 24px;
+  font-size: 1.4em;
   font-weight: 600;
 }
 
@@ -51,23 +54,26 @@
   border: 2px solid #333;
   border-radius: 15px;
   padding: 10px 15px;
-  top: -70px;
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   max-width: 40em; /* Limita a largura máxima */
   min-width: 10em; /* Reduz o mínimo */
+  max-height:5em;
+  overflow:auto;
   width: max-content; /* Ajusta ao conteúdo */
   text-align: center;
   white-space: normal; /* Permite quebra de linha */
   word-wrap: break-word; /* Quebra palavras longas */
   font-size: 14px; /* Tamanho de fonte menor */
   line-height: 1.4; /* Espaçamento entre linhas */
+  margin-bottom: 10px;
 }
 
 .speech-bubble::after {
   content: '';
   position: absolute;
-  bottom: -10px;
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
@@ -80,7 +86,7 @@
 .speech-bubble::before {
   content: '';
   position: absolute;
-  bottom: -13px;
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
@@ -88,6 +94,7 @@
   border-left: 11px solid transparent;
   border-right: 11px solid transparent;
   border-top: 11px solid #333;
+  margin-top: 3px;
   z-index: -1;
 }
 
@@ -114,16 +121,18 @@
 
 .app-container {
   max-width: 800px;
-  margin: 0 auto;
   padding: 10px;
-  padding-top: 80px;
+  padding-top: 100px;
   padding-bottom: 110px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: 100%;
+  gap: 6px;
+  width: 90%;
   height: 100%;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-items: center;
+  justify-content: center;
 }
 
 .controls {
