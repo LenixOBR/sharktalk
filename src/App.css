@@ -57,7 +57,7 @@
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  max-width: 40em; /* Limita a largura máxima */
+  max-width: 30em; /* Limita a largura máxima */
   min-width: 10em; /* Reduz o mínimo */
   max-height:5em;
   overflow:auto;
