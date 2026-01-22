@@ -1,13 +1,15 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  padding-top: calc(2rem + 70px);
-  text-align: center;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .sharkAvatar {
-  height: 20em;
+  height: 12em;
+  max-height: 30vh;
+  flex-shrink: 0;
 }
 
 .shark {
@@ -113,12 +115,21 @@
 .app-container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 10px;
+  padding-top: 80px;
+  padding-bottom: 110px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 .controls {
   text-align: center;
-  margin: 15px 0;
+  margin: 2px 0;
+  flex-shrink: 0;
 }
 
 .toggle-label {
@@ -139,9 +150,11 @@
   background: #f0f8ff;
   border: 2px solid #007bff;
   border-radius: 10px;
-  padding: 15px;
-  margin: 15px 0;
+  padding: 8px;
+  margin: 2px 0;
   animation: fadeIn 0.3s ease;
+  font-size: 12px;
+  flex-shrink: 0;
 }
 
 .transcript-preview p {
@@ -153,10 +166,12 @@
   background: #fff3cd;
   border: 2px solid #ffc107;
   border-radius: 10px;
-  padding: 15px;
-  margin: 15px 0;
+  padding: 8px;
+  margin: 2px 0;
   color: #856404;
   text-align: center;
+  font-size: 12px;
+  flex-shrink: 0;
 }
 
 @keyframes fadeIn {

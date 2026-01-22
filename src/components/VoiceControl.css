@@ -1,17 +1,18 @@
 .voice-control {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  margin: 20px 0;
+  margin: 5px 0;
+  flex-shrink: 0;
 }
 
 .voice-button {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 15px 30px;
-  font-size: 16px;
+  padding: 12px 25px;
+  font-size: 14px;
   border: 2px solid #007bff;
   border-radius: 50px;
   background: white;
@@ -42,7 +43,7 @@
 }
 
 .mic-icon, .speaker-icon {
-  font-size: 24px;
+  font-size: 20px;
   display: inline-block;
 }
 
