@@ -1,76 +1,114 @@
-// src/App.jsx
-import React, { useState } from 'react';
-import SharkAvatar from './components/SharkAvatar';
-import MicrophonePermission from './components/MicrophonePermission';
-import SetupScreen from './components/SetupScreen';
+import React, { useState, useEffect } from 'react';
+import { useSharkChat } from './hooks/useSharkChat';
 import { useGeminiLive } from './hooks/useGeminiLive';
+import SharkAvatar from './components/SharkAvatar';
+import VoiceControl from './components/VoiceControl';
+import MicrophonePermission from './components/MicrophonePermission';
+import CopyrightFooter from './components/Footer';
+import SetupScreen from './components/SetupScreen';
 import './App.css';
 
-function App() {  
-  // Substituímos os hooks antigos pelo hook Live
-  const { connect, disconnect, isConnected, isSpeaking } = useGeminiLive();
-  
+function App() {
   const [setupData, setSetupData] = useState(null);
+  const [useLiveMode, setUseLiveMode] = useState(false);
   const [micPermissionGranted, setMicPermissionGranted] = useState(false);
 
-  const handleSetupComplete = (data) => {
+  // Modo texto (Ollama)
+  const textChat = useSharkChat();
+
+  // Modo voz nativo (Gemini Live)
+  const liveChat = useGeminiLive();
+
+  // Seleciona o modo ativo
+  const activeMode = useLiveMode ? liveChat : textChat;
+
+  const handleSetupComplete = async (data) => {
     setSetupData(data);
-    // O hook useGeminiLive precisa receber os dados para configurar o Tuba
-    connect(data.debateTopic, data.userName);
-  };
-  const handleEndDebate = () => {
-    disconnect();
-    setSetupData(null);
+    
+    if (useLiveMode) {
+      // Conecta ao Gemini Live com instruções personalizadas
+      const systemInstruction = 
+        `Seu nome é Tuba. ` +
+        `Você é um tubarão debatedor. ` +
+        `O tema do debate é: "${data.debateTopic}". ` +
+        `Você está debatendo com ${data.userName}. ` +
+        `Vocês têm ${data.rounds} turnos no total. ` +
+        `Seja assertivo, respeitoso e conciso. ` +
+        `Apresente contra-argumentos fundamentados e mantenha o debate produtivo.`;
+      
+      await liveChat.connect(systemInstruction);
+    } else {
+      textChat.initializeChat(data);
+    }
   };
 
   if (!setupData) {
-    return <SetupScreen onComplete={handleSetupComplete} />;
+    return (
+      <div>
+        <SetupScreen onComplete={handleSetupComplete} />
+        <div className="mode-selector">
+          <label className="toggle-label">
+            <input
+              type="checkbox"
+              checked={useLiveMode}
+              onChange={(e) => setUseLiveMode(e.target.checked)}
+            />
+            Usar modo de voz nativo (Gemini Live API) 🎙️
+          </label>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="app-container">
-      {!micPermissionGranted && (
+      <div className="status-bar">
+        <h1>🦈 Shark Talk - {setupData.debateTopic}</h1>
+        <p className="user-info">
+          Debatedor: {setupData.userName} | 
+          Modo: {useLiveMode ? 'Voz Nativa' : 'Texto'} |
+          {!useLiveMode && ` Turnos restantes: ${textChat.remainingRounds ?? setupData.rounds}`}
+        </p>
+        {useLiveMode && (
+          <p className="connection-status">
+            Status: {liveChat.isConnected ? '🟢 Conectado' : '🔴 Desconectado'}
+          </p>
+        )}
+      </div>
+
+      <SharkAvatar 
+        message={useLiveMode ? liveChat.transcript : textChat.sharkMessage} 
+      />
+
+      {!micPermissionGranted && useLiveMode && (
         <MicrophonePermission onPermissionGranted={() => setMicPermissionGranted(true)} />
       )}
 
-      <header className="app-header">
-        <h1>Shark Tank Debate (Live API 🔴)</h1>
-        <p className="topic-display">
-          Tema: <strong>{setupData.debateTopic}</strong>
-        </p>
-      </header>
+      {useLiveMode && liveChat.isConnected && micPermissionGranted && (
+        <VoiceControl
+          isListening={liveChat.isListening}
+          isSpeaking={liveChat.isSpeaking}
+          onStartListening={liveChat.startListening}
+          onStopListening={liveChat.stopListening}
+          onStopSpeaking={() => {}} // Gemini Live controla isso
+          disabled={false}
+        />
+      )}
 
-      <main className="main-content">
-        <div className="avatar-section">
-          <SharkAvatar isSpeaking={isSpeaking} />
-          
-          <div className="live-status">
-            {isConnected ? (
-              <span className="status-badge connected">● Conectado ao Tuba</span>
-            ) : (
-              <span className="status-badge connecting">● Conectando...</span>
-            )}
-            
-            {isSpeaking && <p className="subtitle">Tuba está falando...</p>}
-            {!isSpeaking && isConnected && <p className="subtitle">Tuba está ouvindo...</p>}
-          </div>
+      {(liveChat.error || textChat.error) && (
+        <div className="voice-error">
+          ⚠️ {useLiveMode ? liveChat.error : textChat.error}
         </div>
+      )}
 
-        <div className="controls-section">
-          <button className="end-button" onClick={handleEndDebate}>
-            Encerrar Debate
-          </button>
+      {(useLiveMode ? liveChat.isListening : textChat.loading) && (
+        <div className="loading-indicator">
+          <div className="spinner"></div>
+          <p>{useLiveMode ? 'Ouvindo...' : 'Tuba está pensando...'}</p>
         </div>
-      </main>
+      )}
 
-      {/* CSS Inline rápido para o status */}
-      <style>{`
-        .live-status { margin-top: 20px; text-align: center; }
-        .status-badge { padding: 5px 10px; border-radius: 15px; font-weight: bold; }
-        .connected { background: #d4edda; color: #155724; }
-        .connecting { background: #fff3cd; color: #856404; }
-        .end-button { background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;}
-      `}</style>
+      <CopyrightFooter />
     </div>
   );
 }
