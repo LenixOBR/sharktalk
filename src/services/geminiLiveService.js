@@ -3,7 +3,7 @@ import { GoogleGenAI, Modality } from '@google/genai';
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-const model = 'gemini-2.0-flash-exp';
+const model = 'gemini-2.5-flash-native-audio-dialog';
 const config = {
   responseModalities: [Modality.AUDIO],
   systemInstruction: 
