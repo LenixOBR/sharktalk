@@ -71,7 +71,7 @@ export const useVoiceChat = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
 
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = 'pt-BR';
     recognition.maxAlternatives = 1;
