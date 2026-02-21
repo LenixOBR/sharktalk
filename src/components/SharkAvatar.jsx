@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import sharkAvatar from '../assets/placeholder.svg';
+import sharkAvatar from '../assets/shark.svg';
 
 const SharkAvatar = ({ message }) => {
   const [displayMessage, setDisplayMessage] = useState(message);
