@@ -9,7 +9,7 @@ exports.handler = async (event, context) => {
     const { debateTopic, userName, chatHistory } = JSON.parse(event.body);
 
     const OLLAMA_API_KEY = process.env.OLLAMA_API_KEY;
-    const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'https://api.ollama.cloud';
+    const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'https://ollama.com';
     const OLLAMA_API_URL = `${OLLAMA_BASE_URL}/api/chat`;
     const MODEL = process.env.MODEL || 'deepseek-v3.2';
 
