@@ -181,6 +181,7 @@ export const useVoiceChat = () => {
 
   const speak = (text, settings = {}) => {
     return new Promise((resolve, reject) => {
+      console.log('speak called with text:', text);
       // Para qualquer fala anterior
       synthRef.current.cancel();
 
@@ -195,6 +196,9 @@ export const useVoiceChat = () => {
         .replace(/\n{2,}/g, '. ')       // Substitui múltiplas quebras por ponto
         .replace(/\n/g, ', ')           // Substitui quebras simples por vírgula
         .trim();
+
+      console.log('cleanText:', cleanText);
+      console.log('selectedVoice:', selectedVoice?.name);
 
       const utterance = new SpeechSynthesisUtterance(cleanText);
       
@@ -211,11 +215,12 @@ export const useVoiceChat = () => {
 
       utterance.onstart = () => {
         setIsSpeaking(true);
-        console.log('Iniciando fala com voz:', utterance.voice?.name);
+        console.log('utterance started with voice:', utterance.voice?.name);
       };
 
       utterance.onend = () => {
         setIsSpeaking(false);
+        console.log('utterance ended');
         resolve();
       };
 

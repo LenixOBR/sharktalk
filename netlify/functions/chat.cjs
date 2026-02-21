@@ -39,7 +39,7 @@ exports.handler = async (event, context) => {
         model: MODEL,
         messages,
         stream: false,
-        options: { temperature: 0.7, num_predict: 500 }
+        options: { temperature: 0.7, num_predict: 2000 }
       })
     });
 
